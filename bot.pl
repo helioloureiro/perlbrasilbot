@@ -118,7 +118,8 @@ my $commands = {
     "exit" => sub {
             my $username = shift->{from}{username};
             if ($username !~ m/^$admin\$/) {
-                return "Somente o admin $admin pode usar esse comando.", $botname
+                print "Tentativa de terminar o programa vinda de $username\n";
+                return "Somente o admin $admin pode usar esse comando."
             }
             print "Saindo do programa.";
             exit(0);
