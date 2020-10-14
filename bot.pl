@@ -1,4 +1,4 @@
-#! /usr/bin/perl -wT
+#! /usr/bin/perl -wt
 #
 #
 use JSON::PP; # apenas pra eliminar mensagens de erro
@@ -106,12 +106,12 @@ my $commands = {
         }
     },
     "uptime" => sub {
-        open(CMD, "uptime|") or die;
+        open(CMD, "/usr/bin/uptime|") or die;
         chomp(my $msg = <CMD>);
         return $msg, $botname
     },
     "uname" => sub {
-        open(CMD, "uname -a|") or die;
+        open(CMD, "/bin/uname -a|") or die;
         chomp(my $msg = <CMD>);
         return $msg, $botname
     },
