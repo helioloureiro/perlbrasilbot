@@ -7,6 +7,7 @@ use utf8;
 use Sys::Syslog;
 use Getopt::Long;
 
+binmode(STDOUT, ":utf8");
 
 GetOptions ("help|h|ajuda" => \$help,
             "comandos|c" => \$comandos,
@@ -48,6 +49,7 @@ my $api = WWW::Telegram::BotAPI->new (
 );
 
 my $me = $api->getMe or die;
+my $botname = $me->{result}{username};
 my ($offset, $updates) = 0;
 
 # The commands that this bot supports.
@@ -57,11 +59,11 @@ my $commands = {
     "diga"      => sub { join " ", splice @_, 1 or "Uso: /diga alguma coisa" },
     # Example showing how to use the result of an API call.
     "quemsoueu"   => sub {
-        sprintf "Oi %s, eu sou %s! Como você está?", shift->{from}{username}, $me->{result}{username}
+        sprintf "Oi %s, eu sou %s! Como você está?", shift->{from}{username}, $botname
     },
     # Example showing how to send multiple lines in a single message.
     "knock"    => sub {
-        sprintf "Knock-knock.\n- Abre a porta Mariquinha?\n@%s!", $me->{result}{username}
+        sprintf "Knock-knock.\n- Abre a porta Mariquinha?\n Sou eu, %s!", $botname
     },
     # Example displaying a keyboard with some simple options.
     "teclado" => sub {
@@ -105,12 +107,12 @@ my $commands = {
     "uptime" => sub {
         open(CMD, "uptime|") or die;
         chomp(my $msg = <CMD>);
-        return $msg, $me->{result}{username}
+        return $msg, $botname
     },
     "uname" => sub {
         open(CMD, "uname -a|") or die;
         chomp(my $msg = <CMD>);
-        return $msg, $me->{result}{username}
+        return $msg, $botname
     },
     "_unknown" => "Comando desconhecido :( Tente /start"
 };
@@ -139,7 +141,7 @@ my $message_types = {
     }
 };
 
-printf "Kawabanga!  Eu sou %s. Inicializando...\n", $me->{result}{username};
+printf "Kawabanga!  Eu sou %s. Inicializando...\n", $botname;
 
 while (1) {
     $updates = $api->getUpdates ({
@@ -158,7 +160,7 @@ while (1) {
             next if $text !~ m!^/[^_].!; # Not a command
             my ($cmd, @params) = split / /, $text;
             # se o comando vier como /start@perlbot, remover tudo depois do @
-            $cmd =~ s/\@.*//;
+            $cmd =~ s/"\@".$botname//;
             my $res = $commands->{substr ($cmd, 1)} || $commands->{_unknown};
             # Pass to the subroutine the message object, and the parameters passed to the cmd.
             $res = $res->($u->{message}, @params) if ref $res eq "CODE";
