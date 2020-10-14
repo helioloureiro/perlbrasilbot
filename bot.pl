@@ -12,12 +12,12 @@ GetOptions ("help|h|ajuda" => \$help,
             "comandos|c" => \$comandos,
             "sobre|about" => \$about);
 
-if (defined($help)) {
+if ($help) {
     print "Use: $0 [--help] [--comandos] [--sobre]\n";
     exit(0);
 }
 
-if (defined($sobre)) {
+if ($sobre) {
     print "Bot pra administração de grupos no Telegram.\n"
         ."Repo: https://github.com/helioloureiro/perlbrasilbot\n";
     exit(0);
@@ -41,8 +41,8 @@ my $token = $ENV{'TELEGRAMBOTTOKEN'};
 
 my $STARTTIME = time();
 
-if ($token) {
-    die "Faltando configuração do token de autenticação";
+if (!defined($token)) {
+    die "Faltando configuração do token de autenticação.";
 }
 
 my $api = WWW::Telegram::BotAPI->new (
