@@ -1,20 +1,53 @@
-#! /usr/bin/perl -w
+#! /usr/bin/perl -wT
 #
 #
+use JSON::PP; # apenas pra eliminar mensagens de erro
 use WWW::Telegram::BotAPI;
 use utf8;
+use Sys::Syslog;
+use Getopt::Long;
+
+
+GetOptions ("help|h|ajuda" => \$help,
+            "comandos|c" => \$comandos,
+            "sobre|about" => \$about);
+
+if (defined($help)) {
+    print "Use: $0 [--help] [--comandos] [--sobre]\n";
+    exit(0);
+}
+
+if (defined($sobre)) {
+    print "Bot pra administração de grupos no Telegram.\n"
+        ."Repo: https://github.com/helioloureiro/perlbrasilbot\n";
+    exit(0);
+}
+
+if ($comandos) {
+    print "Pra ser colado no \@BotFather\n\n"
+        ."diga  - pra dizer alguma coisa\n"
+        ."quemsoueu - informações da pessoa\n"
+        ."knock - quem é?\n"
+        ."teclado - teclado virtual\n"
+        ."telefone - pra anotar o nr de telefone\n"
+        ."encondig - pra testar utf-8\n"
+        ."ultimafoto - republica a última foto postada\n"
+        ."uptime - carga e tempo rodando sem reboots da máquina\n"
+        ."uname - saída do comando POSIX\n";
+    exit(0);
+}
 
 my $token = $ENV{'TELEGRAMBOTTOKEN'};
 
-if (! defined($token)) {
+my $STARTTIME = time();
+
+if ($token) {
     die "Faltando configuração do token de autenticação";
 }
 
 my $api = WWW::Telegram::BotAPI->new (
     token => $token
 );
-
-# Copied from: https://gist.github.com/Robertof/d9358b80d95850e2eb34
 
 my $me = $api->getMe or die;
 my ($offset, $updates) = 0;
@@ -70,6 +103,16 @@ my $commands = {
             photo   => $pic_id,
             caption => "Olha ela aqui!"
         }
+    },
+    "uptime" => sub {
+        open(CMD, "uptime|") or die;
+        chomp(my $msg = <CMD>);
+        return $msg, $me->{result}{username}
+    },
+    "uname" => sub {
+        open(CMD, "uname -a|") or die;
+        chomp(my $msg = <CMD>);
+        return $msg, $me->{result}{username}
     },
     "_unknown" => "Comando desconhecido :( Tente /start"
 };
@@ -136,6 +179,12 @@ while (1) {
                 ."\n";
             }
         }
+
+        # Nem responde se vier de bots
+        next if $u->{message}{from}{is_bot};
+
+
+
         # Handle other message types.
         for my $type (keys %{$u->{message} || {}}) {
             # ;
