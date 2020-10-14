@@ -17,7 +17,7 @@ if ($help) {
     exit(0);
 }
 
-if ($sobre) {
+if ($about) {
     print "Bot pra administração de grupos no Telegram.\n"
         ."Repo: https://github.com/helioloureiro/perlbrasilbot\n";
     exit(0);
