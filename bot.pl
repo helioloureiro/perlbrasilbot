@@ -39,8 +39,6 @@ if ($comandos) {
 
 my $token = $ENV{'TELEGRAMBOTTOKEN'};
 
-my $STARTTIME = time();
-
 if (!defined($token)) {
     die "Faltando configuração do token de autenticação.";
 }
@@ -159,6 +157,8 @@ while (1) {
             printf "Texto: %s\n", $text;
             next if $text !~ m!^/[^_].!; # Not a command
             my ($cmd, @params) = split / /, $text;
+            # se o comando vier como /start@perlbot, remover tudo depois do @
+            $cmd =~ s/\@.*//;
             my $res = $commands->{substr ($cmd, 1)} || $commands->{_unknown};
             # Pass to the subroutine the message object, and the parameters passed to the cmd.
             $res = $res->($u->{message}, @params) if ref $res eq "CODE";
