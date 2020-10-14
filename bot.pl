@@ -122,7 +122,8 @@ my $commands = {
                 return "Somente o admin $admin pode usar esse comando."
             }
             print "Saindo do programa.";
-            exit(0);
+            #exit(0);
+            return "Comando desabilitado no momento."
     },
     "_unknown" => "Comando desconhecido :( Tente /start"
 };
