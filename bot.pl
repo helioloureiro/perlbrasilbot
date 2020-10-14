@@ -8,6 +8,7 @@ use Sys::Syslog;
 use Getopt::Long;
 
 binmode(STDOUT, ":utf8");
+my $admin = "HelioLoureiro";
 
 GetOptions ("help|h|ajuda" => \$help,
             "comandos|c" => \$comandos,
@@ -113,6 +114,14 @@ my $commands = {
         open(CMD, "uname -a|") or die;
         chomp(my $msg = <CMD>);
         return $msg, $botname
+    },
+    "exit" => sub {
+            my $username = shift->{from}{username};
+            if ($username !~ m/^$admin\$/) {
+                return "Somente o admin $admin pode usar esse comando.", $botname
+            }
+            print "Saindo do programa.";
+            exit(0);
     },
     "_unknown" => "Comando desconhecido :( Tente /start"
 };
