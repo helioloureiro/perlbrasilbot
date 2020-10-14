@@ -183,7 +183,10 @@ while (1) {
         }
 
         # Nem responde se vier de bots
-        next if $u->{message}{from}{is_bot};
+        if ($u->{message}{from}{is_bot}) {
+            print "Detectada mensagem vida de bot.  Ignorando.";
+            next;
+        }
 
 
 
@@ -194,6 +197,7 @@ while (1) {
                 ref (my $res2 = $message_types->{$type}->($u->{message}));
             my $method2 = delete ($res2->{method}) || "sendMessage";
             eval {
+                print "Enviando:".$api->$method2."\n";
                 $api->$method2 ({
                     chat_id => $u->{message}{chat}{id},
                     %$res2
